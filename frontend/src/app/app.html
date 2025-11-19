@@ -1,0 +1,24 @@
+<div class="app-container">
+  <header>
+    <h1>🏆 Metal Price Tracker</h1>
+    <p>Real-time precious metals price monitoring</p>
+  </header>
+
+  <!-- Navigation will go here -->
+  <nav class="navigation">
+    <a routerLink="/dashboard" routerLinkActive="active">📊 Current Prices</a>
+    <a routerLink="/chart" routerLinkActive="active">📈 Charts</a>
+  </nav>
+
+  <!-- Main content area -->
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <p>&copy; 2025 Metal Price Tracker. All rights reserved.</p>
+    </div>
+  </footer>
+</div>

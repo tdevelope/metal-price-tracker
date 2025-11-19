@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Angular\\final project\\backend\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DA287A2C-B978-4DD6-9307-60795B98E0D7}|server\\server.csproj|d:\\angular\\final project\\backend\\server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DA287A2C-B978-4DD6-9307-60795B98E0D7}|server\\server.csproj|solutionrelative:server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DA287A2C-B978-4DD6-9307-60795B98E0D7}|server\\server.csproj|d:\\angular\\final project\\backend\\server\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{DA287A2C-B978-4DD6-9307-60795B98E0D7}|server\\server.csproj|solutionrelative:server\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "README.md",
+              "DocumentMoniker": "D:\\Angular\\final project\\backend\\server\\README.md",
+              "RelativeDocumentMoniker": "server\\README.md",
+              "ToolTip": "D:\\Angular\\final project\\backend\\server\\README.md",
+              "RelativeToolTip": "server\\README.md",
+              "ViewState": "AgIAAFAAAAAAAAAAAAAcwGEAAABTAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-08-10T11:27:51.574Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Angular\\final project\\backend\\server\\Program.cs",
+              "RelativeDocumentMoniker": "server\\Program.cs",
+              "ToolTip": "D:\\Angular\\final project\\backend\\server\\Program.cs",
+              "RelativeToolTip": "server\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-10T10:31:46.162Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

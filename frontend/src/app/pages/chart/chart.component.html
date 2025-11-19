@@ -1,0 +1,67 @@
+<div class="chart-container">
+
+    <div class="controls-section">
+        <div class="control-group">
+            <label> Select Metal: </label>
+            <select [(ngModel)]="selectedMetal" (change)="onMetalPriceChange($event)">
+                <option value="Gold">Gold</option>
+                <option value="Silver">Silver</option>
+                <option value="Platinum">Platinum</option>
+                <option value="Copper">Copper</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Select Period:</label>
+            <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange($event)">
+                <option value="Week">Last Week</option>
+                <option value="Month">Last Month</option>
+                <option value="SixMonths">Last 6 Month</option>
+                <option value="Year">Last Year</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="chart-section">
+        <div class="loading" *ngIf="loading">
+            Loading chart...
+        </div>
+
+        <div class="error" *ngIf="error">
+            {{ error }}
+        </div>
+
+        <div class="chart-wrapper" *ngIf="!loading && !error">
+            <canvas #chartCanvas></canvas>
+        </div>
+    </div>
+
+    <div class="statistics-section" *ngIf="!loading && !error">
+        <h3>Price Statistics</h3>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Maximum</span>
+                <span class="stat-value">{{ statistics.max | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Minimum</span>
+                <span class="stat-value">{{ statistics.min | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Average</span>
+                <span class="stat-value">{{ statistics.average | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Change</span>
+                <span class="stat-value" [class]="statistics.change >= 0 ? 'positive' : 'negative'">
+                    {{ statistics.change >= 0 ? '+' : '' }}{{ statistics.change | currency:'USD':'symbol':'1.2-2' }}
+                    ({{ statistics.changePercent >= 0 ? '+' : '' }}{{ statistics.changePercent | number:'1.1-1' }}%)
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

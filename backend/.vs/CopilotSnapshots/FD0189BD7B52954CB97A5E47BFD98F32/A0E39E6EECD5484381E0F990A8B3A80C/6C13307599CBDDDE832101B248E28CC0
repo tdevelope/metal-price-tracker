@@ -1,0 +1,246 @@
+﻿# ?? Metal Price Tracking API Server
+
+**בס"ד** - שרת API למעקב אחר מחירי מתכות יקרות בזמן אמת
+
+## ?? סקירה כללית
+
+שרת ASP.NET Core 9 המספק API מלא למעקב אחר מחירי מתכות יקרות (זהב, כסף, פלטינה, נחושת) עם נתונים היסטוריים לתצוגת גרפים ורשימות.
+
+## ?? מטרת הפרויקט
+
+השרת משמש כ-Backend עבור אפליקציית Angular למעקב מחירי מתכות יקרות. הוא מספק:
+- מחירים נוכחיים עם חישוב שינויים
+- נתונים היסטוריים לגרפים
+- מטא-דטה עבור רכיבי UI
+
+## ??? טכנולוגיות
+
+- **.NET 9** - Framework ראשי
+- **ASP.NET Core Web API** - שכבת API
+- **Yahoo Finance API** - מקור הנתונים
+- **Swagger/OpenAPI** - תיעוד API אוטומטי
+- **Dependency Injection** - ארכיטקטורה נקייה
+
+## ??? ארכיטקטורת הפרויקט
+
+```
+server/
+??? Controllers/           # נקודות קצה API
+?   ??? MetalPricesController.cs
+??? Services/              # לוגיקה עסקית
+?   ??? Interfaces/
+?   ?   ??? IYahooFinanceService.cs
+?   ?   ??? IMetalPriceService.cs
+?   ??? Implementations/
+?       ??? YahooFinanceService.cs
+?       ??? MetalPriceService.cs
+??? Models/                # מודלים עיסקיים
+?   ??? MetalType.cs
+?   ??? TimeRange.cs
+?   ??? MetalPrice.cs
+?   ??? PricePoint.cs
+?   ??? PriceHistory.cs
+??? DTOs/                  # פענוח Yahoo Finance
+?   ??? YahooFinanceResponse.cs
+?   ??? Chart.cs
+?   ??? Result.cs
+??? Program.cs             # הגדרות שרת
+```
+
+## ?? הרצת השרת
+
+### דרישות מקדימות
+- .NET 9 SDK
+- Visual Studio Code / Visual Studio
+- חיבור אינטרנט (לגישה ל-Yahoo Finance)
+
+### הוראות הרצה
+```bash
+# במיקום server/
+dotnet restore
+dotnet run
+```
+
+השרת ירוץ על: `http://localhost:5045`  
+תיעוד Swagger: `http://localhost:5045/swagger`
+
+## ?? API Endpoints
+
+### 1. מחירים נוכחיים
+```http
+GET /api/MetalPrices/current
+```
+**תיאור:** מחזיר מחירים נוכחיים של כל המתכות עם חישוב שינויים  
+**זמן תגובה:** 4-5 שניות  
+**שימוש:** עבור טבלת מחירים ראשית
+
+**תגובה דוגמה:**
+```json
+[
+  {
+    "metal": "Gold",
+    "currentPrice": 2045.30,
+    "previousPrice": 2038.75,
+    "changeAmount": 6.55,
+    "changePercent": 0.32,
+    "lastUpdated": "2024-01-15T10:30:00Z"
+  }
+]
+```
+
+### 2. היסטוריית מחירים
+```http
+GET /api/MetalPrices/history/{metal}/{period}
+```
+**פרמטרים:**
+- `metal`: Gold | Silver | Platinum | Copper
+- `period`: Week | Month | SixMonths | Year
+
+**תיאור:** מחזיר נקודות מחיר היסטוריות לגרפים  
+**זמן תגובה:** 1-2 שניות  
+**שימוש:** עבור רכיב גרף בAngular
+
+**תגובה דוגמה:**
+```json
+{
+  "metal": "Gold",
+  "period": "Month",
+  "data": [
+    {
+      "date": "2024-01-01T00:00:00Z",
+      "price": 2030.45
+    },
+    {
+      "date": "2024-01-02T00:00:00Z", 
+      "price": 2035.20
+    }
+  ],
+  "generatedAt": "2024-01-15T10:30:00Z"
+}
+```
+
+### 3. רשימת מתכות זמינות
+```http
+GET /api/MetalPrices/metals
+```
+**שימוש:** עבור Dropdown בחירת מתכת
+
+**תגובה:**
+```json
+["Gold", "Silver", "Platinum", "Copper"]
+```
+
+### 4. רשימת תקופות זמינות
+```http
+GET /api/MetalPrices/periods
+```
+**שימוש:** עבור Dropdown בחירת תקופה
+
+**תגובה:**
+```json
+["Week", "Month", "SixMonths", "Year"]
+```
+
+## ?? אינטגרציה עם לקוח Angular
+
+### מה הלקוח צריך לעשות:
+
+#### 1. **HttpClient Service ב-Angular**
+```typescript
+// בservice של Angular
+getCurrentPrices(): Observable<MetalPrice[]> {
+  return this.http.get<MetalPrice[]>('http://localhost:5045/api/MetalPrices/current');
+}
+
+getPriceHistory(metal: string, period: string): Observable<PriceHistory> {
+  return this.http.get<PriceHistory>(`http://localhost:5045/api/MetalPrices/history/${metal}/${period}`);
+}
+```
+
+#### 2. **CORS Configuration (אם נדרש)**
+הלקוח עשוי לצטרך להוסיף CORS במידה והשרת והלקוח רצים על פורטים שונים.
+
+#### 3. **Models/Interfaces ב-TypeScript**
+```typescript
+export interface MetalPrice {
+  metal: string;
+  currentPrice: number;
+  previousPrice: number;
+  changeAmount: number;
+  changePercent: number;
+  lastUpdated: string;
+}
+
+export interface PricePoint {
+  date: string;
+  price: number;
+}
+
+export interface PriceHistory {
+  metal: string;
+  period: string;
+  data: PricePoint[];
+  generatedAt: string;
+}
+```
+
+## ? ביצועים ואמינות
+
+### Rate Limiting
+- **1 שנייה delay** בין בקשות ל-Yahoo Finance
+- **Sequential processing** למניעת spam
+- **SemaphoreSlim** למניעת בקשות מקבילות
+
+### Error Handling
+- **Graceful failures** - אם מתכת אחת נכשלת, השאר ממשיכות
+- **Null handling** - החזרת null במקרה של שגיאה
+- **HTTP status codes** - 404/500 לפי המצב
+
+### מהירות
+- **Current prices:** 4-5 שניות (4 מתכות)
+- **History:** 1-2 שניות (מתכת אחת)
+- **Meta endpoints:** מיידי (ללא קריאות חיצוניות)
+
+## ?? מקור הנתונים
+
+**Yahoo Finance API**
+- נתונים בזמן אמת של מחירי מתכות עולמיים
+- User-Agent: `MetalPriceApp/1.0 (.NET 9)` (כנה ושקופה)
+- URL דוגמה: `https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=7d`
+
+### סמלי מתכות:
+- **זהב:** GC=F
+- **כסף:** SI=F  
+- **פלטינה:** PL=F
+- **נחושת:** HG=F
+
+## ?? דרישות מהלקוח Angular
+
+### משימות עיקריות ללקוח:
+1. **יצירת Service** לקריאות HTTP
+2. **רכיב טבלה** להצגת מחירים נוכחיים
+3. **רכיב גרף** להצגת היסטוריה (Chart.js/D3/וכו')
+4. **Dropdowns** לבחירת מתכת ותקופה
+5. **Loading states** (הבקשות לוקחות מספר שניות)
+6. **Error handling** למקרה של כשל בשרת
+
+### מה הלקוח מקבל מהשרת:
+? **JSON מוכן לשימוש** - ללא עיבוד נוסף  
+? **מבנה נקי** - תואם לרכיבי Angular  
+? **מטא-דטה** - לכל ה-Dropdowns  
+? **שגיאות ברורות** - HTTP status codes  
+? **תיעוד מלא** - Swagger UI זמין תמיד  
+
+## ?? הגדרות פיתוח
+
+### Environment
+- **Development:** Swagger זמין, CORS רגיל
+- **Production:** ללא Swagger, CORS מוגבל
+
+### Logging
+הקוד מנוקה מהדפסות Debug, מוכן לייצור.
+
+---
+
+**המערכת מוכנה ופועלת!** ??  
+הלקוח יכול להתחיל לפתח את ממשק המשתמש ולהתחבר לשרת.

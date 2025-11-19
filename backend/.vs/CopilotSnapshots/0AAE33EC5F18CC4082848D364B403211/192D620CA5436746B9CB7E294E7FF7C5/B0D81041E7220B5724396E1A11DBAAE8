@@ -1,0 +1,34 @@
+﻿var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    // הוספת Swagger UI לקלות בפיתוח
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
+}
+
+// הסרת הכפיית HTTPS לפיתוח מקומי
+// app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+// הוספת נקודת קצה פשוטה לבדיקה
+app.MapGet("/", () => "השרת רץ בהצלחה! 🎉 נסה /weatherforecast או /openapi/v1.json");
+
+Console.WriteLine("השרת רץ על: http://localhost:5045");
+Console.WriteLine("בדוק את: http://localhost:5045/weatherforecast");
+
+app.Run();

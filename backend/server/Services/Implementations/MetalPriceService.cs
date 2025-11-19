@@ -1,0 +1,103 @@
+﻿using server.Models;
+using server.Services.Interfaces;
+
+namespace server.Services.Implementations
+{
+    public class MetalPriceService : IMetalPriceService
+    {
+        private readonly IYahooFinanceService _yahooFinanceService;
+
+        public MetalPriceService(IYahooFinanceService yahooFinanceService)
+        {
+            _yahooFinanceService = yahooFinanceService;
+        }
+
+        public async Task<List<MetalPrice>> GetCurrentPricesAsync()
+        {
+            var currentPrices = new List<MetalPrice>();
+
+            foreach (MetalType metal in Enum.GetValues<MetalType>())
+            {
+                try
+                {
+                    var yahooData = await _yahooFinanceService.GetMetalDataAsync(metal, TimeRange.Week);
+
+                    if (yahooData?.Chart?.Result?.FirstOrDefault() != null)
+                    {
+                        var result = yahooData.Chart.Result.First();
+                        var prices = result.Indicators.Quote.FirstOrDefault()?.Close;
+
+                        if (prices != null && prices.Count >= 2)
+                        {
+                            var currentPrice = prices.LastOrDefault(p => p.HasValue) ?? 0;
+                            var previousPrice = prices.Where(p => p.HasValue).Reverse().Skip(1).FirstOrDefault() ?? 0;
+
+                            var changeAmount = currentPrice - previousPrice;
+                            var changePercent = previousPrice > 0 ? (changeAmount / previousPrice) * 100 : 0;
+
+                            currentPrices.Add(new MetalPrice
+                            {
+                                Metal = metal,
+                                CurrentPrice = currentPrice,
+                                PreviousPrice = previousPrice,
+                                ChangeAmount = changeAmount,
+                                ChangePercent = Math.Round(changePercent, 2),
+                                LastUpdated = DateTime.UtcNow
+                            });
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // Continue processing other metals if one fails
+                }
+            }
+
+            return currentPrices;
+        }
+
+        public async Task<PriceHistory?> GetPriceHistoryAsync(MetalType metal, TimeRange period)
+        {
+            try
+            {
+                var yahooData = await _yahooFinanceService.GetMetalDataAsync(metal, period);
+
+                if (yahooData?.Chart?.Result?.FirstOrDefault() == null)
+                    return null;
+
+                var result = yahooData.Chart.Result.First();
+                var timestamps = result.Timestamp;
+                var prices = result.Indicators.Quote.FirstOrDefault()?.Close;
+
+                if (timestamps == null || prices == null)
+                    return null;
+
+                var pricePoints = new List<PricePoint>();
+
+                for (int i = 0; i < Math.Min(timestamps.Count, prices.Count); i++)
+                {
+                    if (prices[i].HasValue)
+                    {
+                        pricePoints.Add(new PricePoint
+                        {
+                            Date = DateTimeOffset.FromUnixTimeSeconds(timestamps[i]).DateTime,
+                            Price = prices[i].Value
+                        });
+                    }
+                }
+
+                return new PriceHistory
+                {
+                    Metal = metal,
+                    Period = period,
+                    Data = pricePoints.OrderBy(p => p.Date).ToList(),
+                    GeneratedAt = DateTime.UtcNow
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+    }
+}
