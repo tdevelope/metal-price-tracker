@@ -7,8 +7,7 @@ import { MetalPrice, PriceHistory, MetalType, TimePeriod } from '../models/metal
   providedIn: 'root',
 })
 export class MetalPriceService {
-  private readonly baseUrl = 'http://localhost:5045/api/MetalPrices';
-
+  private readonly baseUrl = '/api/MetalPrices';
   constructor(private http: HttpClient) { }
 
   getCurrentPrices(): Observable<MetalPrice[]> {
